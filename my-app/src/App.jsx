@@ -5,11 +5,11 @@ function App() {
   const [nihilMessage, setNihilMessage] = useState("まだ何も生成されていません");
   const [loading, setLoading] = useState(false);
   const [bgActive, setBgActive] = useState(false);
-  const [bgImage, setBgImage] = useState(null); // 背景画像URL
-  const [lastBgIndex, setLastBgIndex] = useState(-1); // 前回の背景インデックス
-  const [gifPathList, setGifPathList] = useState([]); // ページ読み込み時にgif画像ファイルパスのリスト（文字列配列）を作成
+  const [bgImage, setBgImage] = useState(null);
+  const [lastBgIndex, setLastBgIndex] = useState(-1);
+  const [gifPathList, setGifPathList] = useState([]);
 
-  const audioRef = useRef(null)
+  const audioRef = useRef(null);
 
   const subjects = ["記憶", "存在", "未来", "思考", "痛み", "光", "空虚"];
   const verbs = ["は崩れる", "は意味を失う", "は再構成される", "に価値はない", "が繰り返される", "が錯覚に過ぎない"];
@@ -23,30 +23,30 @@ function App() {
     "ここでは駐車係の仕事すらないんだ！"
   ];
 
-  const songs = [
-    '/audio/test_1.wav',
-    '/audio/test_2.wav'
+  // public/audio に入っているファイルのパス（ファイル名がわかっている前提）
+  const songList = [
+    "/audio/test_1.wav",
+    "/audio/test_2.wav"
   ];
 
-  // マウント時にgif画像リストを取得
   useEffect(() => {
-    const modules = import.meta.glob('./assets/img/*.gif', {query: '?url', import: 'default', eager: true });
+    const modules = import.meta.glob('./assets/img/*.gif', { query: '?url', import: 'default', eager: true });
     setGifPathList(Object.values(modules));
   }, []);
 
-  // インデックスからgif画像のパスを返す関数
   const getgifimg = (idx) => {
     if (!gifPathList.length) return null;
     return gifPathList[idx % gifPathList.length];
   };
 
   const playRandomSong = () => {
-    const idx = Math.floor(Math.random() * songs.length);
+    if (!songList.length) return;
+    const idx = Math.floor(Math.random() * songList.length);
     if (audioRef.current) {
-      audioRef.current.src = songs[idx];
+      audioRef.current.src = songList[idx];
       audioRef.current.play();
     }
-  }
+  };
 
   const callGEMINI = async () => {
     setLoading(true);
@@ -89,7 +89,6 @@ function App() {
   const handleClick = async () => {
     setLoading(true);
     setTimeout(async () => {
-      // 前回と違うインデックスを選ぶ
       let newIndex;
       do {
         newIndex = Math.floor(Math.random() * gifPathList.length);
@@ -99,14 +98,13 @@ function App() {
 
       playRandomSong();
       const message = await callGEMINI();
-      setBgImage(gifPathList[newIndex]); // ←ここをgifPathList[newIndex]に修正
+      setBgImage(gifPathList[newIndex]);
       setNihilMessage(message);
       speakAsEinstein(message);
       setLoading(false);
     }, 1000);
   };
 
-  // bgImageが変わったときに背景を有効化
   useEffect(() => {
     if (bgImage) {
       setBgActive(true);
@@ -189,7 +187,7 @@ function App() {
 
       <audio ref={audioRef} />
     </>
-  )
+  );
 }
 
-export default App
+export default App;
