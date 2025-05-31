@@ -1,9 +1,22 @@
-import { useState  } from 'react'
+import { useState, useRef } from 'react'
 import './App.css'
 
 function App() {
   const [nihilMessage, setNihilMessage] = useState("まだ何も生成されていません")
   const [loading, setLoading] = useState(false)
+  const audioRef = useRef(null)
+  const songs = [
+    'audio/test_1.wav', // publicフォルダに配置
+    'audio/test_2.wav'
+  ]
+
+  const playRandomSong = () => {
+    const idx = Math.random() < 0.5 ? 0 : 1
+    if (audioRef.current) {
+      audioRef.current.src = songs[idx]
+      audioRef.current.play()
+    }
+  }
 
   const callGEMINI = async () => {
     setLoading(true)
@@ -27,6 +40,7 @@ function App() {
       setNihilMessage(
         data.message || "APIからの応答が不正です"
       )
+      playRandomSong() // ボタン押下時に曲を再生
     } catch (error) {
       setNihilMessage("エラーが発生しました: " + error.message)
     } finally {
@@ -40,6 +54,7 @@ function App() {
         {loading ? "虚無を生成中…" : "ニヒリズムを生成"}
       </button>
       <p style={{ marginTop: '1rem' }}>{nihilMessage}</p>
+      <audio ref={audioRef} />
     </div>
   )
 }
