@@ -83,9 +83,9 @@ function App() {
   };
 
   const handleClick = () => {
-    setBgActive(true); // 背景表示
     setLoading(true);
     setTimeout(() => {
+      setBgActive(true); // 背景表示
       playRandomSong();
       const message = callGEMINI();
       setNihilMessage(message);
