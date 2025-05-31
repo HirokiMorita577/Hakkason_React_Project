@@ -93,17 +93,56 @@ function App() {
   return (
     <>
       <div className="card">
-
-        {/* ニヒリズムボタン */}
-        <button onClick={handleClick} disabled={loading} style={{ marginTop: '1rem' }}>
-          {loading ? "虚無を生成中…" : "ニヒリズムを生成"}
+        {/* でっかいニヒリズムボタン */}
+        <button
+          onClick={handleClick}
+          disabled={loading}
+          style={{
+            marginTop: '2rem',
+            marginBottom: '2rem',
+            padding: '2.5rem 5rem',
+            fontSize: '2.5rem',
+            fontWeight: 'bold',
+            borderRadius: '2rem',
+            background: 'linear-gradient(90deg, #232526 0%, #414345 100%)',
+            color: '#fff',
+            border: 'none',
+            boxShadow: '0 8px 32px 0 rgba(31,38,135,0.37)',
+            letterSpacing: '0.2em',
+            cursor: loading ? 'not-allowed' : 'pointer',
+            transition: 'transform 0.1s',
+            transform: loading ? 'scale(0.98)' : 'scale(1)'
+          }}
+        >
+          {loading ? "虚無を生成中…" : "ニヒリズム"}
         </button>
-        <p style={{ marginTop: '1rem' }}>{nihilMessage}</p>
+        <div
+          style={{
+            marginTop: '2.5rem',
+            marginBottom: '1.5rem',
+            fontSize: '2rem',
+            fontWeight: 600,
+            color: '#e0e0e0',
+            textAlign: 'center',
+            lineHeight: 1.6,
+            letterSpacing: '0.05em',
+            textShadow: '0 2px 12px rgba(0,0,0,0.35), 0 1px 0 #444',
+            padding: '1.5rem 1rem',
+            borderRadius: '1.2rem',
+            background: 'rgba(30,30,35,0.55)',
+            minHeight: '3.5em',
+            boxSizing: 'border-box',
+            wordBreak: 'break-word',
+            border: '1px solid rgba(255,255,255,0.08)',
+            maxWidth: '90%',
+            marginLeft: 'auto',
+            marginRight: 'auto'
+          }}
+        >
+          {nihilMessage}
+        </div>
       </div>
 
-      <p className="read-the-docs">
-        Click on the Vite and React logos to learn more
-      </p>
       <audio ref={audioRef} />
     </>
   )
