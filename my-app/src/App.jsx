@@ -1,8 +1,4 @@
-<<<<<<< HEAD
-import { useRef ,useState } from 'react'
-=======
 import { useState, useRef } from 'react'
->>>>>>> ec54e50 (テスト)
 import viteLogo from '/vite.svg'
 import reactLogo from './assets/react.svg'
 import waveGif from './img/wave.gif' // ←追加
