@@ -1,4 +1,23 @@
+const allowedOrigins = [
+  "http://localhost:5173",
+  "https://hakkason-react-project.vercel.app"
+];
+
 export default async function handler(req, res) {
+  const origin = req.headers.origin;
+  if (allowedOrigins.includes(origin)) {
+    res.setHeader("Access-Control-Allow-Origin", origin);
+    res.setHeader("Vary", "Origin");
+  }
+
+  if (req.method === "OPTIONS") {
+    // プリフライトリクエスト対応
+    res.setHeader("Access-Control-Allow-Methods", "POST, OPTIONS");
+    res.setHeader("Access-Control-Allow-Headers", "Content-Type");
+    res.status(204).end();
+    return;
+  }
+
   if (req.method !== "POST") {
     res.status(405).json({ message: "Method Not Allowed" });
     return;

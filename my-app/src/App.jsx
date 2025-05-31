@@ -8,8 +8,16 @@ function App() {
   const callGEMINI = async () => {
     setLoading(true)
     try {
-      // サーバーレス関数経由でリクエスト
-      const res = await fetch('/api/gemini/nihil', {
+      // ローカル・リモートでエンドポイント切り替え
+      let endpoint = '/api/gemini/nihil'
+      if (
+        window.location.hostname === 'localhost' ||
+        window.location.hostname === '127.0.0.1'
+      ) {
+        // 例: Vercel等の本番環境
+        endpoint = 'https://hakkason-react-project.vercel.app/api/gemini/nihil'
+      }
+      const res = await fetch(endpoint, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
