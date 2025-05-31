@@ -1,54 +1,12 @@
-import { useState, useRef } from 'react'
+import { useState } from 'react'
+import viteLogo from '/vite.svg'
+import reactLogo from './assets/react.svg'
 import './App.css'
 
 function App() {
-  const [nihilMessage, setNihilMessage] = useState("まだ何も生成されていません")
-  const [loading, setLoading] = useState(false)
-  const audioRef = useRef(null)
-  const songs = [
-    'audio/test_1.wav', // publicフォルダに配置
-    'audio/test_2.wav'
-  ]
-
-  const playRandomSong = () => {
-    const idx = Math.random() < 0.5 ? 0 : 1
-    if (audioRef.current) {
-      audioRef.current.src = songs[idx]
-      audioRef.current.play()
-      console.log(`Playing song: ${songs[idx]}`)
-    }
-  }
-
-  const callGEMINI = async () => {
-    setLoading(true)
-    try {
-      // ローカル・リモートでエンドポイント切り替え
-      let endpoint = '/api/gemini/nihil'
-      if (
-        window.location.hostname === 'localhost' ||
-        window.location.hostname === '127.0.0.1'
-      ) {
-        // 例: Vercel等の本番環境
-        endpoint = 'https://hakkason-react-project.vercel.app/api/gemini/nihil'
-      }
-      const res = await fetch(endpoint, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        }
-      })
-      const data = await res.json()
-      if(data.message){
-        playRandomSong();
-      }
-      return data.message || "APIからの応答が不正です"
-    } catch (error) {
-      setNihilMessage("エラーが発生しました: " + error.message)
-    } finally {
-      setLoading(false)
-    }
-    return "null";
-  }
+  const [count, setCount] = useState(0);
+  const [nihilMessage, setNihilMessage] = useState("まだ何も生成されていません");
+  const [loading, setLoading] = useState(false);
 
   // 構成パーツ
   const subjects = ["記憶", "存在", "未来", "思考", "痛み", "光", "空虚"];
@@ -78,7 +36,7 @@ function App() {
     const v = verbs[Math.floor(Math.random() * verbs.length)];
     const e = endings[Math.floor(Math.random() * endings.length)];
     return `${s}${v}${e}`;
-  }
+  };
 
   const handleClick = () => {
     setLoading(true);
@@ -88,10 +46,19 @@ function App() {
       speakAsEinstein(message);
       setLoading(false);
     }, 1000); // 1秒ディレイ（演出）
-  }
+  };
 
   return (
     <>
+      <div>
+        <a href="https://vite.dev" target="_blank" rel="noreferrer">
+          <img src={viteLogo} className="logo" alt="Vite logo" />
+        </a>
+        <a href="https://react.dev" target="_blank" rel="noreferrer">
+          <img src={reactLogo} className="logo react" alt="React logo" />
+        </a>
+      </div>
+      <h1>Vite + React</h1>
       <div className="card">
         {/* でっかいニヒリズムボタン */}
         <button
