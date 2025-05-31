@@ -27,12 +27,13 @@ function App() {
     '/audio/test_2.wav'
   ];
 
-  const images = [
-    '/img/wave.gif',
-    '/img/animal.gif',
-    '/img/space.gif',
-    '/img/maikeru.gif'
-  ];
+  // imgフォルダ内の全画像ファイルを取得
+  const imageModules = useMemo(() => {
+    // .gif, .jpg, .jpeg, .png, .webp など拡張子を必要に応じて追加
+    const modules = import.meta.glob('/img/*.{gif,jpg,jpeg,png,webp}', { eager: true });
+    // Viteのimport.meta.globは {default: url} 形式で返す
+    return Object.values(modules).map(mod => mod.default);
+  }, []);
 
   const playRandomSong = () => {
     const idx = Math.floor(Math.random() * songs.length);
