@@ -1,5 +1,5 @@
 const allowedOrigins = [
-  "http://localhost",
+  "http://localhost:5173",
   "https://hakkason-react-project.vercel.app"
 ];
 
