@@ -8,37 +8,44 @@ function App() {
   const [nihilMessage, setNihilMessage] = useState("まだ何も生成されていません")
   const [loading, setLoading] = useState(false)
 
-  const callGPT = async () => {
-    setLoading(true)
-    try {
-      const res = await fetch("https://api.openai.com/v1/chat/completions", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${import.meta.env.VITE_OPENAI_API_KEY}`,
-        },
-        body: JSON.stringify({
-          model: "gpt-3.5-turbo",
-          messages: [
-            {
-              role: "system",
-              content: "あなたはニヒリズム哲学を語る詩人です。短くて絶望的な真理を述べてください。"
-            },
-            {
-              role: "user",
-              content: "ニヒリズム的な真理をください。"
-            }
-          ],
-        }),
-      })
+  // 構成パーツ
+  const subjects = ["記憶", "存在", "未来", "思考", "痛み", "光", "空虚"];
+  const verbs = ["は崩れる", "は意味を失う", "は再構成される", "に価値はない", "が繰り返される", "が錯覚に過ぎない"];
+  const endings = [
+    "ために生まれた。",
+    "が唯一の真実だ。",
+    "それが無である証明だ。",
+    "そしてすべてが終わる。",
+    "そして誰も覚えていない。",
+    "それでいて、それでしかない。"
+  ];
 
-      const data = await res.json()
-      setNihilMessage(data.choices?.[0]?.message?.content || "APIからの応答が不正です")
-    } catch (error) {
-      setNihilMessage("エラーが発生しました: " + error.message)
-    } finally {
-      setLoading(false)
-    }
+  // アインシュタイン風に読み上げ
+  const speakAsEinstein = (text) => {
+    const utterance = new SpeechSynthesisUtterance(text);
+    const voice = speechSynthesis.getVoices().find(v => v.name.includes("Google UK English Male")) || null;
+    if (voice) utterance.voice = voice;
+    utterance.rate = 0.85;
+    utterance.pitch = 0.8;
+    speechSynthesis.speak(utterance);
+  };
+
+  // メッセージ生成
+  const generateNihilism = () => {
+    const s = subjects[Math.floor(Math.random() * subjects.length)];
+    const v = verbs[Math.floor(Math.random() * verbs.length)];
+    const e = endings[Math.floor(Math.random() * endings.length)];
+    return `${s}${v}${e}`;
+  }
+
+  const handleClick = () => {
+    setLoading(true);
+    setTimeout(() => {
+      const message = generateNihilism();
+      setNihilMessage(message);
+      speakAsEinstein(message);
+      setLoading(false);
+    }, 1000); // 1秒ディレイ（演出）
   }
 
   return (
@@ -60,8 +67,8 @@ function App() {
           Edit <code>src/App.jsx</code> and save to test HMR
         </p>
 
-        {/* 👇 ニヒリズムボタンを追加 👇 */}
-        <button onClick={callGPT} disabled={loading} style={{ marginTop: '1rem' }}>
+        {/* ニヒリズムボタン */}
+        <button onClick={handleClick} disabled={loading} style={{ marginTop: '1rem' }}>
           {loading ? "虚無を生成中…" : "ニヒリズムを生成"}
         </button>
         <p style={{ marginTop: '1rem' }}>{nihilMessage}</p>
