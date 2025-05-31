@@ -1,6 +1,4 @@
 import { useState, useRef } from 'react'
-import viteLogo from '/vite.svg'
-import reactLogo from './assets/react.svg'
 import waveGif from './img/wave.gif' // ←追加
 import './App.css'
 
