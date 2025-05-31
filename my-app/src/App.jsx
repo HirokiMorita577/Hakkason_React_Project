@@ -1,14 +1,19 @@
+<<<<<<< HEAD
 import { useRef ,useState } from 'react'
+=======
+import { useState, useRef } from 'react'
+>>>>>>> ec54e50 (テスト)
 import viteLogo from '/vite.svg'
 import reactLogo from './assets/react.svg'
+import waveGif from './img/wave.gif' // ←追加
 import './App.css'
 
 function App() {
   const [count, setCount] = useState(0);
   const [nihilMessage, setNihilMessage] = useState("まだ何も生成されていません");
   const [loading, setLoading] = useState(false);
+  const [bgActive, setBgActive] = useState(false); // 背景ON/OFF
 
-  // 構成パーツ
   const subjects = ["記憶", "存在", "未来", "思考", "痛み", "光", "空虚"];
   const verbs = ["は崩れる", "は意味を失う", "は再構成される", "に価値はない", "が繰り返される", "が錯覚に過ぎない"];
   const endings = [
@@ -17,11 +22,13 @@ function App() {
     "それが無である証明だ。",
     "そしてすべてが終わる。",
     "そして誰も覚えていない。",
-    "それでいて、それでしかない。"
+    "それでいて、それでしかない。",
+    "ここでは駐車係の仕事すらないんだ！"
   ];
+
   const audioRef = useRef(null)
   const songs = [
-    'audio/test_1.wav', // publicフォルダに配置
+    'audio/test_1.wav',
     'audio/test_2.wav'
   ]
 
@@ -34,7 +41,35 @@ function App() {
     }
   }
 
-  // アインシュタイン風に読み上げ
+  const callGEMINI = async () => {
+    setLoading(true)
+    try {
+      let endpoint = '/api/gemini/nihil'
+      if (
+        window.location.hostname === 'localhost' ||
+        window.location.hostname === '127.0.0.1'
+      ) {
+        endpoint = 'https://hakkason-react-project.vercel.app/api/gemini/nihil'
+      }
+      const res = await fetch(endpoint, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        }
+      })
+      const data = await res.json()
+      if (data.message) {
+        playRandomSong();
+      }
+      return data.message || "APIからの応答が不正です"
+    } catch (error) {
+      setNihilMessage("エラーが発生しました: " + error.message)
+    } finally {
+      setLoading(false)
+    }
+    return "null";
+  }
+
   const speakAsEinstein = (text) => {
     const utterance = new SpeechSynthesisUtterance(text);
     const voice = speechSynthesis.getVoices().find(v => v.name.includes("Google UK English Male")) || null;
@@ -44,7 +79,6 @@ function App() {
     speechSynthesis.speak(utterance);
   };
 
-  // メッセージ生成
   const generateNihilism = () => {
     const s = subjects[Math.floor(Math.random() * subjects.length)];
     const v = verbs[Math.floor(Math.random() * verbs.length)];
@@ -53,29 +87,38 @@ function App() {
   };
 
   const handleClick = () => {
+    setBgActive(true); // 背景表示
     setLoading(true);
     setTimeout(() => {
-      playRandomSong(); // ランダムな曲を再生
+      playRandomSong();
       const message = callGEMINI();
       setNihilMessage(message);
       speakAsEinstein(message);
       setLoading(false);
-    }, 1000); // 1秒ディレイ（演出）
+    }, 1000);
   };
 
   return (
     <>
-      <div>
-        <a href="https://vite.dev" target="_blank" rel="noreferrer">
-          <img src={viteLogo} className="logo" alt="Vite logo" />
-        </a>
-        <a href="https://react.dev" target="_blank" rel="noreferrer">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
-      </div>
+      {/* 背景画像を切り替え */}
+      <div
+        className="wave-bg"
+        style={{
+          position: 'fixed',
+          top: 0,
+          left: 0,
+          width: '100%',
+          height: '100%',
+          zIndex: -1,
+          backgroundSize: 'cover',
+          backgroundRepeat: 'no-repeat',
+          backgroundPosition: 'center',
+          backgroundImage: bgActive ? `url(${waveGif})` : 'none'
+        }}
+      />
+
       <h1>Vite + React</h1>
       <div className="card">
-        {/* でっかいニヒリズムボタン */}
         <button
           onClick={handleClick}
           disabled={loading}
@@ -98,6 +141,21 @@ function App() {
         >
           {loading ? "虚無を生成中…" : "ニヒリズム"}
         </button>
+        <div
+        className="wave-bg"
+            style={{
+            position: 'fixed',
+            top: 0,
+            left: 0,
+            width: '100%',
+            height: '100%',
+            zIndex: -1,
+            backgroundSize: 'cover',
+            backgroundRepeat: 'no-repeat',
+            backgroundPosition: 'center',
+            backgroundImage: bgActive ? `url(${waveGif})` : 'none'
+          }}
+        />
         <div
           style={{
             marginTop: '2.5rem',
