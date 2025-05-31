@@ -1,4 +1,4 @@
-import { useState, useRef, useMemo } from 'react'
+import { useState, useRef, useEffect } from 'react'
 import './App.css'
 
 function App() {
@@ -7,6 +7,7 @@ function App() {
   const [bgActive, setBgActive] = useState(false);
   const [bgImage, setBgImage] = useState(null); // 背景画像URL
   const [lastBgIndex, setLastBgIndex] = useState(-1); // 前回の背景インデックス
+  const [gifPathList, setGifPathList] = useState([]); // ページ読み込み時にgif画像ファイルパスのリスト（文字列配列）を作成
 
   const audioRef = useRef(null)
 
@@ -27,12 +28,10 @@ function App() {
     '/audio/test_2.wav'
   ];
 
-  // ページ読み込み時にgif画像ファイルパスのリスト（文字列配列）を作成
-  const gifPathList = useMemo(() => {
-    // globでファイルパス一覧を取得
-    const modules = import.meta.glob('/img/*.gif', { as: 'url', eager: true });
-    // modules: { '/img/xxx.gif': 'publicパス' }
-    return Object.values(modules);
+  // マウント時にgif画像リストを取得
+  useEffect(() => {
+    const modules = import.meta.glob('./assets/img/*.gif', {query: '?url', import: 'default', eager: true });
+    setGifPathList(Object.values(modules));
   }, []);
 
   // インデックスからgif画像のパスを返す関数
@@ -97,16 +96,23 @@ function App() {
       } while (newIndex === lastBgIndex && gifPathList.length > 1);
 
       setLastBgIndex(newIndex);
-      setBgActive(true);
 
       playRandomSong();
       const message = await callGEMINI();
-      setBgImage(getgifimg(newIndex)); // ここでgifPathListから取得
+      setBgImage(gifPathList[newIndex]); // ←ここをgifPathList[newIndex]に修正
       setNihilMessage(message);
       speakAsEinstein(message);
       setLoading(false);
     }, 1000);
   };
+
+  // bgImageが変わったときに背景を有効化
+  useEffect(() => {
+    if (bgImage) {
+      setBgActive(true);
+      console.log("背景画像がセットされました:", bgImage);
+    }
+  }, [bgImage]);
 
   return (
     <>
