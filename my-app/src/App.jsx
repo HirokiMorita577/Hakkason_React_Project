@@ -1,9 +1,12 @@
-import { useState  } from 'react'
+import { useState } from 'react'
+import viteLogo from '/vite.svg'
+import reactLogo from './assets/react.svg'
 import './App.css'
 
 function App() {
-  const [nihilMessage, setNihilMessage] = useState("まだ何も生成されていません")
-  const [loading, setLoading] = useState(false)
+  const [count, setCount] = useState(0);
+  const [nihilMessage, setNihilMessage] = useState("まだ何も生成されていません");
+  const [loading, setLoading] = useState(false);
 
   // 構成パーツ
   const subjects = ["記憶", "存在", "未来", "思考", "痛み", "光", "空虚"];
@@ -33,7 +36,7 @@ function App() {
     const v = verbs[Math.floor(Math.random() * verbs.length)];
     const e = endings[Math.floor(Math.random() * endings.length)];
     return `${s}${v}${e}`;
-  }
+  };
 
   const handleClick = () => {
     setLoading(true);
@@ -43,15 +46,15 @@ function App() {
       speakAsEinstein(message);
       setLoading(false);
     }, 1000); // 1秒ディレイ（演出）
-  }
+  };
 
   return (
     <>
       <div>
-        <a href="https://vite.dev" target="_blank">
+        <a href="https://vite.dev" target="_blank" rel="noreferrer">
           <img src={viteLogo} className="logo" alt="Vite logo" />
         </a>
-        <a href="https://react.dev" target="_blank">
+        <a href="https://react.dev" target="_blank" rel="noreferrer">
           <img src={reactLogo} className="logo react" alt="React logo" />
         </a>
       </div>

@@ -1,6 +1,7 @@
 const allowedOrigins = [
   "http://localhost:5173",
   "https://hakkason-react-project.vercel.app"
+  
 ];
 
 export default async function handler(req, res) {
