@@ -15,6 +15,7 @@ function App() {
     if (audioRef.current) {
       audioRef.current.src = songs[idx]
       audioRef.current.play()
+      console.log(`Playing song: ${songs[idx]}`)
     }
   }
 
@@ -37,8 +38,10 @@ function App() {
         }
       })
       const data = await res.json()
+      if(data.message){
+        playRandomSong();
+      }
       return data.message || "APIからの応答が不正です"
-      playRandomSong() // ボタン押下時に曲を再生
     } catch (error) {
       setNihilMessage("エラーが発生しました: " + error.message)
     } finally {
