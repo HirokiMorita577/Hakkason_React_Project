@@ -19,6 +19,20 @@ function App() {
     "そして誰も覚えていない。",
     "それでいて、それでしかない。"
   ];
+  const audioRef = useRef(null)
+  const songs = [
+    'audio/test_1.wav', // publicフォルダに配置
+    'audio/test_2.wav'
+  ]
+
+  const playRandomSong = () => {
+    const idx = Math.random() < 0.5 ? 0 : 1
+    if (audioRef.current) {
+      audioRef.current.src = songs[idx]
+      audioRef.current.play()
+      console.log(`Playing song: ${songs[idx]}`)
+    }
+  }
 
   // アインシュタイン風に読み上げ
   const speakAsEinstein = (text) => {
@@ -41,6 +55,7 @@ function App() {
   const handleClick = () => {
     setLoading(true);
     setTimeout(() => {
+      playRandomSong(); // ランダムな曲を再生
       const message = callGEMINI();
       setNihilMessage(message);
       speakAsEinstein(message);
