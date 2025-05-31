@@ -8,6 +8,7 @@ function App() {
   const [bgImage, setBgImage] = useState(null);
   const [lastBgIndex, setLastBgIndex] = useState(-1);
   const [gifPathList, setGifPathList] = useState([]);
+  const [audioList, setAudioList] = useState([]);
 
   const audioRef = useRef(null);
 
@@ -23,15 +24,21 @@ function App() {
     "ここでは駐車係の仕事すらないんだ！"
   ];
 
-  // public/audio に入っているファイルのパス（ファイル名がわかっている前提）
-  const songList = [
-    "/audio/test_1.wav",
-    "/audio/test_2.wav"
-  ];
-
+  // 🎵 オーディオ＆GIF画像を読み込む
   useEffect(() => {
-    const modules = import.meta.glob('./assets/img/*.gif', { query: '?url', import: 'default', eager: true });
-    setGifPathList(Object.values(modules));
+    const audioModules = import.meta.glob('./assets/audio/*.{mp3,wav,ogg}', {
+      eager: true,
+      import: 'default',
+      query: '?url'
+    });
+    setAudioList(Object.values(audioModules));
+
+    const gifModules = import.meta.glob('./assets/img/*.gif', {
+      eager: true,
+      import: 'default',
+      query: '?url'
+    });
+    setGifPathList(Object.values(gifModules));
   }, []);
 
   const getgifimg = (idx) => {
@@ -40,10 +47,11 @@ function App() {
   };
 
   const playRandomSong = () => {
-    if (!songList.length) return;
-    const idx = Math.floor(Math.random() * songList.length);
+    if (!audioList.length) return;
+    const idx = Math.floor(Math.random() * audioList.length);
+    const path = audioList[idx];
     if (audioRef.current) {
-      audioRef.current.src = songList[idx];
+      audioRef.current.src = path;
       audioRef.current.play();
     }
   };
@@ -114,7 +122,6 @@ function App() {
 
   return (
     <>
-      {/* 背景GIF */}
       <div
         style={{
           position: 'fixed',
@@ -129,8 +136,6 @@ function App() {
           backgroundImage: bgActive && bgImage ? `url(${bgImage})` : 'none',
         }}
       />
-
-      {/* メインコンテンツ */}
       <div style={{ position: 'relative', zIndex: 1 }}>
         <h1>Vite + React</h1>
         <div className="card">
@@ -187,7 +192,7 @@ function App() {
 
       <audio ref={audioRef} />
     </>
-  );
+  )
 }
 
-export default App;
+export default App
