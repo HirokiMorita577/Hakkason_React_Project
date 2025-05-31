@@ -7,7 +7,7 @@ function App() {
   const [bgActive, setBgActive] = useState(false);
   const [bgImage, setBgImage] = useState(null);
   const [lastBgIndex, setLastBgIndex] = useState(-1);
-  const [gifPathList, setGifPathList] = useState([]);
+  const [imgPathList, setImgPathList] = useState([]);
   const [audioList, setAudioList] = useState([]);
 
   const audioRef = useRef(null);
@@ -24,7 +24,7 @@ function App() {
     "ここでは駐車係の仕事すらないんだ！"
   ];
 
-  // 🎵 オーディオ＆GIF画像を読み込む
+  // 🎵 オーディオ＆画像を読み込む
   useEffect(() => {
     const audioModules = import.meta.glob('./assets/audio/*.{mp3,wav,ogg}', {
       eager: true,
@@ -33,17 +33,17 @@ function App() {
     });
     setAudioList(Object.values(audioModules));
 
-    const gifModules = import.meta.glob('./assets/img/*.gif', {
+    const imageModules = import.meta.glob('./assets/img/*.{gif,jpg,jpeg,png}', {
       eager: true,
       import: 'default',
       query: '?url'
     });
-    setGifPathList(Object.values(gifModules));
+    setImgPathList(Object.values(imageModules));
   }, []);
 
-  const getgifimg = (idx) => {
-    if (!gifPathList.length) return null;
-    return gifPathList[idx % gifPathList.length];
+  const getBgImage = (idx) => {
+    if (!imgPathList.length) return null;
+    return imgPathList[idx % imgPathList.length];
   };
 
   const playRandomSong = () => {
@@ -99,14 +99,14 @@ function App() {
     setTimeout(async () => {
       let newIndex;
       do {
-        newIndex = Math.floor(Math.random() * gifPathList.length);
-      } while (newIndex === lastBgIndex && gifPathList.length > 1);
+        newIndex = Math.floor(Math.random() * imgPathList.length);
+      } while (newIndex === lastBgIndex && imgPathList.length > 1);
 
       setLastBgIndex(newIndex);
 
       playRandomSong();
       const message = await callGEMINI();
-      setBgImage(gifPathList[newIndex]);
+      setBgImage(imgPathList[newIndex]);
       setNihilMessage(message);
       speakAsEinstein(message);
       setLoading(false);
