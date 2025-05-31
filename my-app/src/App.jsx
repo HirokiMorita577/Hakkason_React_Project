@@ -1,4 +1,4 @@
-import { useState, useRef } from 'react'
+import { useState, useRef, useMemo } from 'react'
 import './App.css'
 
 function App() {
@@ -6,7 +6,7 @@ function App() {
   const [loading, setLoading] = useState(false);
   const [bgActive, setBgActive] = useState(false);
   const [bgImage, setBgImage] = useState(null); // 背景画像URL
-  const [lastIndex, setLastIndex] = useState(-1); // 前回の背景インデックス
+  const [lastBgIndex, setLastBgIndex] = useState(-1); // 前回の背景インデックス
 
   const audioRef = useRef(null)
 
@@ -27,12 +27,19 @@ function App() {
     '/audio/test_2.wav'
   ];
 
-  const images = [
-    '/img/wave.gif',
-    '/img/animal.gif',
-    '/img/space.gif',
-    '/img/maikeru.gif'
-  ];
+  // ページ読み込み時にgif画像ファイルパスのリスト（文字列配列）を作成
+  const gifPathList = useMemo(() => {
+    // globでファイルパス一覧を取得
+    const modules = import.meta.glob('/img/*.gif', { as: 'url', eager: true });
+    // modules: { '/img/xxx.gif': 'publicパス' }
+    return Object.values(modules);
+  }, []);
+
+  // インデックスからgif画像のパスを返す関数
+  const getgifimg = (idx) => {
+    if (!gifPathList.length) return null;
+    return gifPathList[idx % gifPathList.length];
+  };
 
   const playRandomSong = () => {
     const idx = Math.floor(Math.random() * songs.length);
@@ -86,15 +93,15 @@ function App() {
       // 前回と違うインデックスを選ぶ
       let newIndex;
       do {
-        newIndex = Math.floor(Math.random() * images.length);
-      } while (newIndex === lastIndex && images.length > 1);
+        newIndex = Math.floor(Math.random() * gifPathList.length);
+      } while (newIndex === lastBgIndex && gifPathList.length > 1);
 
-      setLastIndex(newIndex);
+      setLastBgIndex(newIndex);
       setBgActive(true);
 
       playRandomSong();
       const message = await callGEMINI();
-      setBgImage(images[newIndex]);
+      setBgImage(getgifimg(newIndex)); // ここでgifPathListから取得
       setNihilMessage(message);
       speakAsEinstein(message);
       setLoading(false);
