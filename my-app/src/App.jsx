@@ -8,7 +8,6 @@ function App() {
   const [bgImage, setBgImage] = useState(null);
   const [lastBgIndex, setLastBgIndex] = useState(-1);
   const [imgPathList, setImgPathList] = useState([]);
-  const imgPathListRef = useRef([]); // 追加
   const [audioList, setAudioList] = useState([]);
 
   const audioRef = useRef(null);
@@ -26,137 +25,8 @@ function App() {
       import: 'default',
       query: '?url'
     });
-    const imgList = Object.values(imageModules);
-    setImgPathList(imgList);
-    imgPathListRef.current = imgList; // 追加
-    console.log("画像リスト:", imgList); // ここで中身を確認
+    setImgPathList(Object.values(imageModules));
   }, []);
-
-  // 音声認識で「押して」などを検知し、処理を分離
-  useEffect(() => {
-    // Web Speech API の SpeechRecognition を利用
-    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
-    if (!SpeechRecognition) {
-      console.warn("このブラウザは音声認識に対応していません。");
-      return;
-    }
-
-    let recognition;
-    let isUnmounted = false; // クリーンアップ判定用
-
-    try {
-      recognition = new SpeechRecognition();
-    } catch (e) {
-      console.warn("音声認識の初期化に失敗しました:", e);
-      return;
-    }
-
-    recognition.lang = 'ja-JP';
-    recognition.continuous = true;
-    recognition.interimResults = false;
-
-    recognition.onstart = () => {
-      if (!isUnmounted) console.log("音声認識が開始されました（マイク接続OK）");
-    };
-
-    recognition.onaudiostart = () => {
-      if (!isUnmounted) console.log("マイクから音声入力を検出しました");
-    };
-
-    recognition.onaudioend = () => {
-      if (!isUnmounted) console.log("マイク入力が終了しました");
-    };
-
-    // 音声認識結果を処理する関数
-    const handleTranscript = (transcript) => {
-      console.log("音声認識結果:", transcript);
-      if (
-        transcript.includes('押して') ||
-        transcript.includes('をして') ||
-        transcript.includes('おして')
-      ) {
-        if (!loading) handleClick();
-      }
-      if (transcript.includes('うるさい')) {
-        if (audioRef.current) {
-          audioRef.current.pause();
-          audioRef.current.currentTime = 0;
-        }
-        // 音声合成も止める
-        if (window.speechSynthesis) {
-          window.speechSynthesis.cancel();
-        }
-      }
-      // 「背景」と「猫」が両方含まれていたらcat画像またはneko画像からランダム
-      if (
-        (transcript.includes('背景') || transcript.includes('はいけい')) &&
-        transcript.includes('猫')
-      ) {
-        const catImgs = imgPathListRef.current.filter(path =>
-          path.toLowerCase().includes('cat') || path.toLowerCase().includes('neko')
-        );
-        if (catImgs.length > 0) {
-          let newIndex;
-          do {
-            newIndex = Math.floor(Math.random() * catImgs.length);
-          } while (
-            catImgs.length > 1 &&
-            catImgs[newIndex] === bgImage
-          );
-          setBgImage(catImgs[newIndex]);
-          setLastBgIndex(-1); // cat画像の場合は通常のインデックス管理をリセット
-          console.log("猫背景画像を変更しました:", catImgs[newIndex]);
-        }
-        return; // 他の背景処理はスキップ
-      }
-      if (
-        transcript.includes('変えて') ||
-        transcript.includes('かえて') ||
-        transcript.includes('帰って')
-      ) {
-        // 背景だけ変える
-        let newIndex;
-        do {
-          newIndex = Math.floor(Math.random() * imgPathListRef.current.length);
-        } while (newIndex === lastBgIndex && imgPathListRef.current.length > 1);
-        setLastBgIndex(newIndex);
-        setBgImage(imgPathListRef.current[newIndex]);
-        console.log("背景画像を変更しました:", imgPathListRef.current);
-        console.log("背景画像を変更しました:", newIndex);
-        console.log("背景画像を変更しました:", imgPathListRef.current[newIndex]);
-      }
-    };
-
-    // onresultで認識結果をhandleTranscriptに渡す
-    recognition.onresult = (event) => {
-      for (let i = event.resultIndex; i < event.results.length; ++i) {
-        if (event.results[i].isFinal) {
-          const transcript = event.results[i][0].transcript.trim();
-          handleTranscript(transcript);
-        }
-      }
-    };
-
-    recognition.onerror = (e) => {
-      console.warn('音声認識エラー:', e);
-    };
-
-    recognition.onend = () => {
-      if (!isUnmounted) {
-        console.log("音声認識が終了しました。再開します。");
-        setTimeout(() => {
-          if (!isUnmounted) recognition.start();
-        }, 500);
-      }
-    };
-
-    recognition.start();
-
-    return () => {
-      isUnmounted = true;
-      recognition.abort();
-    };
-  }, []); // 依存配列を空にしてマウント時のみセット
 
   const getBgImage = (idx) => {
     if (!imgPathList.length) return null;
@@ -164,26 +34,26 @@ function App() {
   };
 
   const generateAudio = async (text) => {
-    try {
-      const response = await fetch("http://127.0.0.1:8000/generate", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ text }),
-      });
+  try {
+    const response = await fetch("http://127.0.0.1:8000/generate", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ text }),
+    });
 
-      if (!response.ok) {
-        const errorText = await response.text();
-        throw new Error(`HTTPエラー ${response.status}: ${errorText}`);
-      }
-
-      const data = await response.json();
-      const audio = new Audio("http://127.0.0.1:8000" + data.file);
-      audio.play();
-    } catch (e) {
-      console.error("音声再生エラー:", e);
-      alert("音声再生に失敗しました: " + e.message);
+    if (!response.ok) {
+      const errorText = await response.text();
+      throw new Error(`HTTPエラー ${response.status}: ${errorText}`);
     }
-  };
+
+    const data = await response.json();
+    const audio = new Audio("http://127.0.0.1:8000" + data.file);
+    audio.play();
+  } catch (e) {
+    console.error("音声再生エラー:", e);
+    alert("音声再生に失敗しました: " + e.message);
+  }
+};
 
   const playRandomSong = () => {
     if (!audioList.length) return;
@@ -195,24 +65,22 @@ function App() {
     }
   };
 
-  // ここでAPIキーを送信してGemini API呼び出し
-  const callGEMINI = async (apiKey) => {
+  const callGEMINI = async () => {
     setLoading(true);
     try {
-      let endpoint = '/api/gemini/nihil';
-      if (
-        window.location.hostname === 'localhost' ||
-        window.location.hostname === '127.0.0.1'
-      ) {
-        endpoint = 'https://hakkason-react-project.vercel.app/api/gemini/nihil';
-      }
+      // 友達からもらったAPIキーをここに入れる（本来は環境変数推奨）
+      const friendApiKey = "AIzaSyDxDa-zuqxHo6tqoFJiR57yR3o74MSlXJQ";
+
+      let endpoint = 'http://localhost:8000/api/gemini/nihil';
+
       const res = await fetch(endpoint, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ api_key: apiKey }), // APIキーをここで送る
+        body: JSON.stringify({ api_key: friendApiKey }),  // ここでAPIキーを送信
       });
-
+      console.log("fetch response status:", res.status);
       const data = await res.json();
+      console.log("fetch response data:", data);
       return {
         message: data.message || "APIからの応答が不正です",
         romaji: data.romaji || ""
@@ -237,9 +105,6 @@ function App() {
   };
 
   const handleClick = async () => {
-    // ここに友達からもらったAPIキーをセットしてください
-    const friendApiKey = "ここにAPIキーを入れてください";
-
     setLoading(true);
     setTimeout(async () => {
       let newIndex;
@@ -249,7 +114,7 @@ function App() {
 
       setLastBgIndex(newIndex);
       playRandomSong();
-      const { message, romaji } = await callGEMINI(friendApiKey);
+      const { message, romaji } = await callGEMINI();
       setBgImage(imgPathList[newIndex]);
       setNihilMessage(message);
       if (romaji) {
