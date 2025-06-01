@@ -1,0 +1,19 @@
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.env
+.venv/
+venv/
+*.sqlite3
+
+# Tortoise TTS outputs
+outputs/
+
+# その他キャッシュ
+*.log
+.DS_Store
+
+# Jupyter（使っていなければOK）
+.ipynb_checkpoints/

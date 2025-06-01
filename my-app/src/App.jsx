@@ -1,5 +1,5 @@
-import { useState, useRef, useEffect } from 'react'
-import './App.css'
+import { useState, useRef, useEffect } from 'react';
+import './App.css';
 
 function App() {
   const [nihilMessage, setNihilMessage] = useState("まだ何も生成されていません");
@@ -13,19 +13,6 @@ function App() {
 
   const audioRef = useRef(null);
 
-  const subjects = ["記憶", "存在", "未来", "思考", "痛み", "光", "空虚"];
-  const verbs = ["は崩れる", "は意味を失う", "は再構成される", "に価値はない", "が繰り返される", "が錯覚に過ぎない"];
-  const endings = [
-    "ために生まれた。",
-    "が唯一の真実だ。",
-    "それが無である証明だ。",
-    "そしてすべてが終わる。",
-    "そして誰も覚えていない。",
-    "それでいて、それでしかない。",
-    "ここでは駐車係の仕事すらないんだ！"
-  ];
-
-  // 🎵 オーディオ＆画像を読み込む
   useEffect(() => {
     const audioModules = import.meta.glob('./assets/audio/*.{mp3,wav,ogg}', {
       eager: true,
@@ -176,6 +163,28 @@ function App() {
     return imgPathList[idx % imgPathList.length];
   };
 
+const generateAudio = async (text) => {
+  try {
+    const response = await fetch("http://127.0.0.1:8000/generate", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ text }),
+    });
+
+    if (!response.ok) {
+      const errorText = await response.text();
+      throw new Error(`HTTPエラー ${response.status}: ${errorText}`);
+    }
+
+    const data = await response.json();
+    const audio = new Audio("http://127.0.0.1:8000" + data.file);
+    audio.play();
+  } catch (e) {
+    console.error("音声再生エラー:", e);
+    alert("音声再生に失敗しました: " + e.message);
+  }
+};
+
   const playRandomSong = () => {
     if (!audioList.length) return;
     const idx = Math.floor(Math.random() * audioList.length);
@@ -190,29 +199,29 @@ function App() {
     setLoading(true);
     try {
       let endpoint = '/api/gemini/nihil';
-      if (
-        window.location.hostname === 'localhost' ||
-        window.location.hostname === '127.0.0.1'
-      ) {
+      if (window.location.hostname === 'localhost' && window.location.hostname === '127.0.0.1') {
         endpoint = 'https://hakkason-react-project.vercel.app/api/gemini/nihil';
       }
+
       const res = await fetch(endpoint, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        }
-      });
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({}) // 空オブジェクトを明示的に送る
+    });
+
       const data = await res.json();
-      if (data.message) {
-        playRandomSong();
-      }
-      return data.message || "APIからの応答が不正です";
+      return {
+        message: data.message || "APIからの応答が不正です",
+        romaji: data.romaji || ""
+      };
     } catch (error) {
-      setNihilMessage("エラーが発生しました: " + error.message);
+      return {
+        message: "エラーが発生しました: " + error.message,
+        romaji: ""
+      };
     } finally {
       setLoading(false);
     }
-    return "null";
   };
 
   const speakAsEinstein = (text) => {
@@ -233,12 +242,15 @@ function App() {
       } while (newIndex === lastBgIndex && imgPathList.length > 1);
 
       setLastBgIndex(newIndex);
-
       playRandomSong();
-      const message = await callGEMINI();
+      const { message, romaji } = await callGEMINI();
       setBgImage(imgPathList[newIndex]);
       setNihilMessage(message);
-      speakAsEinstein(message);
+      if (romaji) {
+        generateAudio(romaji);
+      } else {
+        speakAsEinstein(message);
+      }
       setLoading(false);
     }, 1000);
   };
@@ -322,7 +334,7 @@ function App() {
 
       <audio ref={audioRef} />
     </>
-  )
+  );
 }
 
-export default App
+export default App;
