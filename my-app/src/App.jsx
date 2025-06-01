@@ -163,27 +163,27 @@ function App() {
     return imgPathList[idx % imgPathList.length];
   };
 
-const generateAudio = async (text) => {
-  try {
-    const response = await fetch("http://127.0.0.1:8000/generate", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ text }),
-    });
+  const generateAudio = async (text) => {
+    try {
+      const response = await fetch("http://127.0.0.1:8000/generate", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ text }),
+      });
 
-    if (!response.ok) {
-      const errorText = await response.text();
-      throw new Error(`HTTPエラー ${response.status}: ${errorText}`);
+      if (!response.ok) {
+        const errorText = await response.text();
+        throw new Error(`HTTPエラー ${response.status}: ${errorText}`);
+      }
+
+      const data = await response.json();
+      const audio = new Audio("http://127.0.0.1:8000" + data.file);
+      audio.play();
+    } catch (e) {
+      console.error("音声再生エラー:", e);
+      alert("音声再生に失敗しました: " + e.message);
     }
-
-    const data = await response.json();
-    const audio = new Audio("http://127.0.0.1:8000" + data.file);
-    audio.play();
-  } catch (e) {
-    console.error("音声再生エラー:", e);
-    alert("音声再生に失敗しました: " + e.message);
-  }
-};
+  };
 
   const playRandomSong = () => {
     if (!audioList.length) return;
@@ -195,19 +195,22 @@ const generateAudio = async (text) => {
     }
   };
 
-  const callGEMINI = async () => {
+  // ここでAPIキーを送信してGemini API呼び出し
+  const callGEMINI = async (apiKey) => {
     setLoading(true);
     try {
-      let endpoint = 'http://localhost:8000/api/gemini/nihil';
-      if (window.location.hostname !== 'localhost' && window.location.hostname !== '127.0.0.1') {
+      let endpoint = '/api/gemini/nihil';
+      if (
+        window.location.hostname === 'localhost' ||
+        window.location.hostname === '127.0.0.1'
+      ) {
         endpoint = 'https://hakkason-react-project.vercel.app/api/gemini/nihil';
       }
-
       const res = await fetch(endpoint, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({}) // 空オブジェクトを明示的に送る
-    });
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ api_key: apiKey }), // APIキーをここで送る
+      });
 
       const data = await res.json();
       console.log("APIからの応答:", data);
@@ -235,6 +238,9 @@ const generateAudio = async (text) => {
   };
 
   const handleClick = async () => {
+    // ここに友達からもらったAPIキーをセットしてください
+    const friendApiKey = "ここにAPIキーを入れてください";
+
     setLoading(true);
     setTimeout(async () => {
       let newIndex;
@@ -244,7 +250,7 @@ const generateAudio = async (text) => {
 
       setLastBgIndex(newIndex);
       playRandomSong();
-      const { message, romaji } = await callGEMINI();
+      const { message, romaji } = await callGEMINI(friendApiKey);
       setBgImage(imgPathList[newIndex]);
       setNihilMessage(message);
       if (romaji) {
