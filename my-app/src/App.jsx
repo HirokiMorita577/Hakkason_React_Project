@@ -75,9 +75,8 @@ function App() {
         (transcript.includes('背景') || transcript.includes('はいけい')) &&
         (transcript.includes('雰囲気') || transcript.includes('ふんいき'))
       ) {
-        setBgImage('/assets/SC000830.png');
+        setBgImage('/SC000830.png');
         setLastBgIndex(-1); // インデックス管理をリセット（必要なら）
-        console.log("雰囲気背景画像に変更しました: ./assets/img/SC000830.png");
         return; // 他の背景処理はスキップ
       }
 
