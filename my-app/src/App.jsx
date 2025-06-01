@@ -80,7 +80,7 @@ function App() {
       });
       console.log("fetch response status:", res.status);
       const data = await res.json();
-      console.log("fetch response data:", data);
+      console.log("APIからの応答:", data);
       return {
         message: data.message || "APIからの応答が不正です",
         romaji: data.romaji || ""

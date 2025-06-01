@@ -20,6 +20,7 @@ const prompt = `
 - 例えや比喩を交え、あらゆるものが無意味であることを論理的かつ情緒的に表現してください。
 - **最後に、全く同じ内容をローマ字表記でも出力してください**
 - **ローマ字表記の際、読みやすさを重視して、ヘボン式に近い形で書いてください**
+- **日本語とローマ字表記の間は、=を十個入れて**
 
 `;
 
@@ -68,8 +69,8 @@ export default async function handler(req, res) {
     const data = await apiRes.json();
     const fullText = data.candidates?.[0]?.content?.parts?.[0]?.text || "APIからの応答が不正です";
 
-    // 日本語とローマ字を分割（空行や2回改行を想定）
-    const [japanese, romaji] = fullText.split(/\n{2,}/);
+    // 日本語とローマ字を分割（=が10個の区切りを想定）
+    const [japanese, romaji] = fullText.split(/={10,}/);
 
     res.status(200).json({
       message: japanese?.trim() || "",
