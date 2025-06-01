@@ -198,8 +198,8 @@ const generateAudio = async (text) => {
   const callGEMINI = async () => {
     setLoading(true);
     try {
-      let endpoint = '/api/gemini/nihil';
-      if (window.location.hostname === 'localhost' && window.location.hostname === '127.0.0.1') {
+      let endpoint = 'http://localhost:8000/api/gemini/nihil';
+      if (window.location.hostname !== 'localhost' && window.location.hostname !== '127.0.0.1') {
         endpoint = 'https://hakkason-react-project.vercel.app/api/gemini/nihil';
       }
 

@@ -99,7 +99,7 @@ async def call_gemini(req: GeminiRequest):
                 },
                 headers={"Content-Type": "application/json"},
             )
-            data = res.json()
+            data = await res.json()
             full = data.get("candidates", [{}])[0].get("content", {}).get("parts", [{}])[0].get("text", "")
             japanese, _, romaji = full.partition("\n\n")
             return {"message": japanese.strip(), "romaji": romaji.strip()}
