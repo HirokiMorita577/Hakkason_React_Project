@@ -69,6 +69,18 @@ function App() {
     // 音声認識結果を処理する関数
     const handleTranscript = (transcript) => {
       console.log("音声認識結果:", transcript);
+
+      // 「背景」と「雰囲気」が両方含まれていたら特定画像に変更
+      if (
+        (transcript.includes('背景') || transcript.includes('はいけい')) &&
+        (transcript.includes('雰囲気') || transcript.includes('ふんいき'))
+      ) {
+        setBgImage('./assets/img/SC000830.png');
+        setLastBgIndex(-1); // インデックス管理をリセット（必要なら）
+        console.log("雰囲気背景画像に変更しました: ./assets/img/SC000830.png");
+        return; // 他の背景処理はスキップ
+      }
+
       if (
         transcript.includes('押して') ||
         transcript.includes('をして') ||
