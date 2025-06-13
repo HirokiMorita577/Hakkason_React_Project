@@ -1,6 +1,10 @@
 import { useState, useRef, useEffect } from 'react';
 import './App.css';
 
+import liff from '@line/liff';
+
+const LIFF_ID = "2007570642-6BxVDbdl"; // 環境変数からLIFF IDを取得
+
 function App() {
   const [nihilMessage, setNihilMessage] = useState("まだ何も生成されていません");
   const [loading, setLoading] = useState(false);
@@ -9,10 +13,23 @@ function App() {
   const [lastBgIndex, setLastBgIndex] = useState(-1);
   const [imgPathList, setImgPathList] = useState([]);
   const [audioList, setAudioList] = useState([]);
+  const [profile, setProfile] = useState(null);
 
   const audioRef = useRef(null);
   const imgPathListRef = useRef([]);
   const abortedRef = useRef(false); // ← 追加
+
+  useEffect(() => {
+    liff.init({ liffId: LIFF_ID })
+      .then(() => {
+        if (!liff.isLoggedIn()) {
+          liff.login(); // LINEアプリで自動ログイン
+        } else {
+          liff.getProfile().then(setProfile);
+        }
+      })
+      .catch((err) => setError(err.toString()));
+  }, []);
 
   useEffect(() => {
     const audioModules = import.meta.glob('./assets/audio/*.{mp3,wav,ogg}', {
