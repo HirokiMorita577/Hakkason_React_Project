@@ -1,4 +1,4 @@
-import line from '@line/bot-sdk';
+import * as line from '@line/bot-sdk';
 
 const config = {
   channelAccessToken: process.env.LINE_ACCESS_TOKEN,
