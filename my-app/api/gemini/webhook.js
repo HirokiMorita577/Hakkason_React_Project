@@ -31,4 +31,3 @@ async function handleEvent(event) {
     text: `「${event.message.text}」ですね`,
   });
 }
-}
